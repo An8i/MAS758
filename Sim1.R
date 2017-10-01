@@ -1,23 +1,23 @@
-p<-rep(NA, 10000)
+nsim<-3000
+nts<-20
+autoc<-0.9
 
-for (i in 1:10000){
-ar1<-arima.sim(model=list(ar=0.9),n=200,sd=1)+1
-ar2<-arima.sim(model=list(ar=0.9),n=200,sd=1)+1
-ar3<-arima.sim(model=list(ar=0.9),n=200,sd=1)+1 
+count<-0
+for (i in 1:nsim){
 
-subgrp<-as.factor(rep(1:3, c(200,200,200)))
+  ar1<-arima.sim(model=list(ar=autoc),n=nts)+1
+  ar2<-arima.sim(model=list(ar=autoc),n=nts)+1
+  ar3<-arima.sim(model=list(ar=autoc),n=nts)+1
 
-data1<- c(ar1,ar2,ar3)
+  subgrp<-as.factor(rep(c("a","b","c"), c(nts,nts,nts)))
 
-data<-data.frame(cbind(data1,subgrp))
+  tser<- c(ar1,ar2,ar3)
 
-fit <- aov(data1 ~ subgrp, data=data)
+  data2<-data.frame(tser,subgrp)
 
-summary(fit)
-
-p[i]<-summary(fit)[[1]][["Pr(>F)"]][[1]]
-
+  fit <- aov(tser~ subgrp, data=data2)
+  if (summary(fit)[[1]][["Pr(>F)"]][[1]] <= 0.05) {count<-count+1}
 }
 
-result<-length(which(p<=0.05))/10000
+result<-count/nsim
 result
